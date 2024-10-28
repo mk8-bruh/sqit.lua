@@ -445,8 +445,6 @@ function lib.new(o)
         end end
     end
 
-    ui.quit = emptyf
-
     for _,f in ipairs(activeCallbackNames) do
         ui[f] = function(...)
             if active and type(active[f]) == "function" then
