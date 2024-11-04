@@ -115,7 +115,7 @@ called right before this object (or the entire instance) is disabled
 ### LÖVE callbacks
 
 | callback |
-| :--- |
+| :---: |
 | *all elements* |
 | `resize` |
 | *enabled elements* |
