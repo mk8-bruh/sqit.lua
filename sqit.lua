@@ -86,7 +86,7 @@ local function emptyf() return end
 local function clamp(x, a, b) a, b = math.min(a, b), math.max(a, b) return math.max(a, math.min(b, x)) end
 local function inrect(x, y, l, t, w, h) return x == clamp(x, l, l + w) and y == clamp(y, t, t + h) end
 local function hasbbox(e) if type(e) ~= "table" then return false end for _,k in ipairs{"x","y","w","h"} do if type(e[k]) ~= "number" then return false end end return true end
-local function check(e, x, y) return (type(e.check) == "function" and e:check(x, y)) or (hasbbox(e) and inrect(x, y, e.x, e.y, e.w, e.h)) end
+local function check(e, x, y) return type(x) == "number" and type(y) == "number" and ((type(e.check) == "function" and e:check(x, y)) or (type(e.check) ~= "function" and hasbbox(e) and inrect(x, y, e.x, e.y, e.w, e.h))) end
 
 local function zsorted(elem, rev)
     local r = {}
@@ -317,6 +317,7 @@ function lib.new(o)
     end
 
     function ui.moved(k, x, y, dx, dy)
+        ui.refreshHover()
         for v in pairs(elem) do if elem[v] then
             if presses[v] == k then
                 if type(v.moved) == "function" then
@@ -357,25 +358,16 @@ function lib.new(o)
             if check(v, x, y) then
                 hovered = v
                 if v ~= prev then
+                    if prev and type(prev.unhovered) == "function" then
+                        prev:unhovered()
+                    end 
                     if type(v.hovered) == "function" then
-                        if v:hovered() ~= false then
-                            break
-                        else
-                            hovered = nil
-                        end
-                    elseif v.hovered == false then
-                        hovered = nil
-                    else
-                        break
+                        v:hovered()
                     end
-                else break end
+                end
+                break
             end
         end end
-        if prev and prev ~= hovered then
-            if type(prev.unhovered) == "function" then
-               prev:unhovered()
-           end 
-        end
     end
 
     function ui.mousepressed(x, y, b, t)
