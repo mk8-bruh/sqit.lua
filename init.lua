@@ -411,7 +411,7 @@ function lib.new(o)
     end
 
     function ui.resize(w, h)
-        for v in pairs(elem) do
+        for _,v in ipairs(zsorted(elem, true)) do
             if type(v.resize) == "function" then
                 v:resize(w, h)
             end
