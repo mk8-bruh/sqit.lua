@@ -671,8 +671,8 @@ function lib.new(o)
     return t
 end
 
-lib.components = require _PATH..".components"
-lib.utils = require _PATH..".utils"
+lib.components = require(_PATH..".components")
+lib.utils = require(_PATH..".utils")
 
 return setmetatable({}, {
     __index = lib,
