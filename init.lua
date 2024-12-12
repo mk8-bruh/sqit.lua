@@ -1,3 +1,5 @@
+local _PATH = ...
+
 --[[
 SQIT - Super Quick Interface Toolkit
 
@@ -77,6 +79,88 @@ usage:
     (note: instance functions can also be called with semicolon)
     instance properties:
         ui.callbacks - a table containing all the instance's extra callbacks (the extra callbacks are called right before the elements' respective callbacks, they can be set by overriding the fields in the instance table itself or in this table)
+    components (call the designated function with a table with parameters for the component):
+        sqit.components.textButton - a button with a text label
+            x, y: position of the center of the button
+            [w, h]: size of the button (if left unspecified will stretch according to the contents)
+            style: a table with color and graphics settings
+                (format)
+                shape = {
+                    padding = {
+                        x, y
+                    },
+                    cornerRadius
+                },
+                color = {
+                    default, active, hovered, pressed
+                },
+                text = {
+                    color = {
+                        default, active, hovered, pressed
+                    },
+                    font
+                },
+                outline = {
+                    color = {
+                        default, active, hovered, pressed
+                    },
+                    width
+                }
+            scene: the UI instance the component is a part of
+            text: the display text of the button
+            action: the function to be called when the button is pressed
+            [previous, next]: the previous/next elements in the navigation layout
+        sqit.components.inlineTextbox - a textbox in just one line of text (scrollable)
+            x, y: position of the center of the button
+            [w, h]: size of the textbox (if left unspecified will stretch according to the contents)
+            style: a table with color and graphics settings
+                (format)
+                shape = {
+                    padding = {
+                        x, y
+                    },
+                    cornerRadius
+                },
+                color = {
+                    default, active, hovered
+                },
+                text = {
+                    color = {
+                        default, active, hovered
+                    },
+                    font
+                },
+                cursor = {
+                    color, width, blinkSpeed
+                },
+                alttext = {
+                    color, font
+                },
+                outline = {
+                    color = {
+                        default, active, hovered
+                    },
+                    width
+                }
+            scene: the UI instance the component is a part of
+            text: the initial text of the input field
+            [encrypt]: a function that transforms the input text before it is rendered (e.g. `function(s) return string.rep("*", #s) end` for a password field)
+            alttext: alternative text to display if the field is empty
+            action: the function to be called when the user presses enter
+            [previous, next]: the previous/next elements in the navigation layout
+    utility functions:
+        sqit.utils.spaceOut(elems, direction, space, pivot, mode, spaceAround) - spaces out the elements in the specified order (assuming elements are positioned about their cetner)
+            elems: the array of elements
+            direction: "x" (left to right) or "y" (top to bottom)
+            space: the spacing distance
+            pivot: the origin of the spaced-out layout
+            mode: "start" (the layout will start at origin), "center" (the layout will be centered about the origin) or "end" (the layout will end at the origin)
+            spaceAround: whether to include a space before the first and after the last element
+        sqit.utils.stretchOut(elems, direction, from, to, spaceAround) - stretch the elements out between 2 boundaries (assuming elements are positioned about their center)
+            elems: the array of elements
+            direction: "x" (left to right) or "y" (top to bottom)
+            from, to: the boundaries of the layout
+            spaceAround: whether to include a space before the first and after the last element
 --]]
 
 _NAME = "SQIT"
@@ -586,6 +670,9 @@ function lib.new(o)
 
     return t
 end
+
+lib.components = require _PATH..".components"
+lib.utils = require _PATH..".utils"
 
 return setmetatable({}, {
     __index = lib,
