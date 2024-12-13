@@ -47,11 +47,13 @@ local inlineTextbox = {
         return math.abs(x - t.x) <= t.w/2 and math.abs(y - t.y) <= t.h/2
     end,
     update = function(t, dt)
+        t.cursor = math.min(t.cursor, #t.text)
         local txt = (t.scene.isActive(t) or utf8.len(t.text) > 0) and t.encrypt(t.text) or t.alttext
         t.cursorBlink = (t.cursorBlink + 2*t.style.cursor.blinkSpeed * dt) % 2
         t.scroll = math.min(math.max(t.scroll, t.w - 2*t.style.shape.padding.x - (t.style.text.font:getWidth(txt) + math.ceil(t.style.cursor.width/2))), 0)
     end,
     draw = function(t)
+        t.cursor = math.min(t.cursor, #t.text)
         love.graphics.setColor((t.scene.isActive(t) and t.style.color.active) or (t.scene.isHovered(t) and t.style.color.hovered) or t.style.color.default)
         love.graphics.rectangle("fill", t.x - t.w/2, t.y - t.h/2, t.w, t.h, t.style.shape.cornerRadius)
         love.graphics.setColor((t.scene.isActive(t) and t.style.outline.color.active) or (t.scene.isHovered(t) and t.style.outline.color.hovered) or t.style.outline.color.default)
@@ -86,8 +88,10 @@ local inlineTextbox = {
     end,
     moved = function(t, x, y, dx, dy)
         t.scroll = t.scroll + dx
+        return true
     end,
     released = function(t, x, y)
+        t.cursor = math.min(t.cursor, #t.text)
         if t._press and math.abs(t._press - x) <= inlineScrollThreshold then
             if t.scene.getPressButton(t) == 1 then
                 t.scene.activate(t)
@@ -123,11 +127,13 @@ local inlineTextbox = {
         love.mouse.setCursor()
     end,
     textinput = function(t, txt)
+        t.cursor = math.min(t.cursor, #t.text)
         t.scroll = t.scroll - t.style.text.font:getWidth(txt)
         t.text = t.text:sub(1, utf8.offset(t.text, t.cursor + 1) - 1) .. txt .. t.text:sub(utf8.offset(t.text, t.cursor + 1), -1)
         t.cursor = t.cursor + utf8.len(txt)
     end,
     keypressed = function(t, k)
+        t.cursor = math.min(t.cursor, #t.text)
         if k == "backspace" then
             if t.cursor > 0 then
                 t.scroll = t.scroll + t.style.text.font:getWidth(t.text:sub(utf8.offset(t.text, t.cursor + 1) - 1, utf8.offset(t.text, t.cursor + 1) - 1))
