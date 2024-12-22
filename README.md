@@ -13,7 +13,7 @@ download the file `sqit.lua` into your project folder, then in your program, req
 sqit = require "sqit"
 ```
 
-## Creating an instance:
+## Creating an scene:
 
 ```lua
 ui = sqit()
@@ -28,7 +28,7 @@ ui = sqit.new()
 ```lua
 ui.add(element [, name])
 ```
-optionally assigns a name by which the element can be retrieved from the instance (if there was previously an element registered under the same name, it will be overwritten!), can also be used to assign name to an already added element
+optionally assigns a name by which the element can be retrieved from the scene (if there was previously an element registered under the same name, it will be overwritten!), can also be used to assign name to an already added element
 
 ```lua
 ui.remove(element|name)
@@ -105,12 +105,12 @@ called when the cursor exits this element's bounding box
 ```lua
 element:enabled()
 ```
-called right after this object (or the entire instance) is enabled
+called right after this object (or the entire scene) is enabled
 
 ```lua
 element:disabled()
 ```
-called right before this object (or the entire instance) is disabled
+called right before this object (or the entire scene) is disabled
 
 ### LÖVE callbacks
 
@@ -140,16 +140,16 @@ called right before this object (or the entire instance) is disabled
 
 > _**all callbacks are called with a semicolon**_
 
-## Instance callbacks:
+## scene callbacks:
 
 for a list refer to the table above
 
 > called from within the respective LÖVE callbacks
 
-> all input callbacks return `true` if the instance responded to the input, which can be used for blocking the inputs:
+> all input callbacks return `true` if the scene responded to the input, which can be used for blocking the inputs:
 ```lua
 function love.keypressed(key)
-  if instance.keypressed(key) then
+  if scene.keypressed(key) then
     return
   end
 
@@ -157,142 +157,142 @@ function love.keypressed(key)
 end
 ```
 
-you can add additional code to be run on the instance before the element callbacks are invoked, by assigning a function to the respective key
+you can add additional code to be run on the scene before the element callbacks are invoked, by assigning a function to the respective key
 
 ```lua
-function instance:callback(...)
+function scene:callback(...)
   ...
 end
 ```
 
 if this function returns `false`, the callback will be aborted and element callbacks will not be invoked
 
-> these functions can be accessed via the `instance.callbacks` table
+> these functions can be accessed via the `scene.callbacks` table
 
-## Instance methods:
+## scene methods:
 
 > all elements can be specified by their object or by their registered name
 
 ```lua
-instance.registerCallbacks()
+scene.registerCallbacks()
 ```
-automatically register all instance callbacks
+automatically register all scene callbacks
 
 ```lua
-instance.contains(element|name, ...)
+scene.contains(element|name, ...)
 ```
-check whether the instance contains the element(s)
+check whether the scene contains the element(s)
 
 ```lua
-instance.hasNamed(name)
+scene.hasNamed(name)
 ```
 check if the insance has an element registered under this name
 
 ```lua
-instance.getNamed(name)
+scene.getNamed(name)
 ```
 retrieve the element registered under this name
 
 ```lua
-instance.activate(element|name)
+scene.activate(element|name)
 ```
-activate an element within the instance
+activate an element within the scene
 
 ```lua
-instance.deactivate(element|name)
+scene.deactivate(element|name)
 ```
 deactivate an element (or the currently active element)
 
 ```lua
-instance.isActive(element|name)
+scene.isActive(element|name)
 ```
 check whether an element is active
 
 ```lua
-instance.getActive()
+scene.getActive()
 ```
 get the currently active element
 
 ```lua
-instance.isPressed(element|name)
+scene.isPressed(element|name)
 ```
 check whether an element is currently pressed
 
 ```lua
-instance.getPress(element|name)
+scene.getPress(element|name)
 ```
 get the element's press identificator
 
 ```lua
-instance.getPressID(element|name)
+scene.getPressID(element|name)
 ```
 if the element is pressed with a touch, retrieve the touch's ID
 
 ```lua
-instance.getPressButton(element|name)
+scene.getPressButton(element|name)
 ```
 if the element is pressed with the mouse, retrieve the mouse button
 
 ```lua
-instance.getPressPosition(element|name)
+scene.getPressPosition(element|name)
 ```
 get the position of the element's press
 
 ```lua
-instance.cancelPress(element|name)
+scene.cancelPress(element|name)
 ```
 cancel the element's press (without properly releasing it)
 
 ```lua
-instance.transferPress(element|name, element|name)
+scene.transferPress(element|name, element|name)
 ```
 cancel both elements' current presses, then press the second element with the first element's press
 
 ```lua
-instance.getHovered()
+scene.getHovered()
 ```
 get the currently hovered element
 
 ```lua
-instance.isHovered(element|name)
+scene.isHovered(element|name)
 ```
 check whether the element is currently hovered
 
 ```lua
-instance.refreshHover()
+scene.refreshHover()
 ```
-recalculates mouse hover (called automatically in `instance.update`, if not using this callback it should be called when a hoverable element's `z` value is changed, as the library can't automatically detect this)
+recalculates mouse hover (called automatically in `scene.update`, if not using this callback it should be called when a hoverable element's `z` value is changed, as the library can't automatically detect this)
 
 ```lua
-instance.setEnabled(state)
+scene.setEnabled(state)
 ```
-changes the enabled state of the instance (when disabled, the element or instance won't register any callbacks apart from `resize`)
+changes the enabled state of the scene (when disabled, the element or scene won't register any callbacks apart from `resize`)
 
 ```lua
-instance.setEnabled(element|name, state)
+scene.setEnabled(element|name, state)
 ```
 changes the enabled state of an element
 
 ```lua
-instance.isEnabled()
+scene.isEnabled()
 ```
-retrieves the enabled state of the instance
+retrieves the enabled state of the scene
 
 ```lua
-instance.isEnabled(element|name)
+scene.isEnabled(element|name)
 ```
 retrieves the enabled state of an element
 
 ```lua
-instance.getElements(reverse)
+scene.getElements(reverse)
 ```
-get a list of all the elements in the instance, sorted from front to back by default (decreasing `z` values)
+get a list of all the elements in the scene, sorted from front to back by default (decreasing `z` values)
 
-> instance functions can be called both normally and with semicolon
+> scene functions can be called both normally and with semicolon
 
-## Instance properties
+## scene properties
 
 ```lua
-instance.callbacks
+scene.callbacks
 ```
 the table containing extra callbacks
