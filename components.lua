@@ -456,7 +456,8 @@ local scrollableListMt = {
                 end
             end)
             return t.pivot
-        elseif k == "items" then t.items = {} return t.items
+        elseif k == "items" then
+            -- generate item list
         elseif k == "space" then return 0
         elseif k == "scroll" then return 0
         elseif k == "scrollSpeed" then return inlineScrollSpeed
