@@ -202,7 +202,10 @@ local textButtonMt = {
 local inlineTextbox = {
     update = function(t, dt)
 <<<<<<< HEAD
+<<<<<<< HEAD
         t.cursor = math.min(t.cursor, utf8.len(t.text))
+=======
+>>>>>>> parent of 228dbab (textbox cursor clamping)
 =======
 >>>>>>> parent of 228dbab (textbox cursor clamping)
         local txt = (t.scene.isActive(t) or utf8.len(t.text) > 0) and t.encrypt(t.text) or t.alttext
@@ -211,10 +214,13 @@ local inlineTextbox = {
     end,
     draw = function(t)
 <<<<<<< HEAD
+<<<<<<< HEAD
         t.cursor = math.min(t.cursor, #t.text)
         love.graphics.setColor((t.scene.isActive(t) and t.style.background.color.active) or (t.scene.isHovered(t) and t.style.background.color.hovered) or t.style.background.color.default)
         love.graphics.rectangle("fill", t.x - t.w/2, t.y - t.h/2, t.w, t.h, t.style.cornerRadius)
 =======
+=======
+>>>>>>> parent of 228dbab (textbox cursor clamping)
         love.graphics.setColor((t.scene.isActive(t) and t.style.color.active) or (t.scene.isHovered(t) and t.style.color.hovered) or t.style.color.default)
         love.graphics.rectangle("fill", t.x - t.w/2, t.y - t.h/2, t.w, t.h, t.style.shape.cornerRadius)
 >>>>>>> parent of 228dbab (textbox cursor clamping)
@@ -259,7 +265,10 @@ local inlineTextbox = {
     end,
     released = function(t, x, y)
 <<<<<<< HEAD
+<<<<<<< HEAD
         t.cursor = math.min(t.cursor, utf8.len(t.text))
+=======
+>>>>>>> parent of 228dbab (textbox cursor clamping)
 =======
 >>>>>>> parent of 228dbab (textbox cursor clamping)
         if t._press and math.abs(t._press - x) <= inlineScrollThreshold then
@@ -298,8 +307,11 @@ local inlineTextbox = {
     end,
     textinput = function(t, txt)
 <<<<<<< HEAD
+<<<<<<< HEAD
         txt = txt:gsub("\n", "")
         t.cursor = math.min(t.cursor, utf8.len(t.text))
+=======
+>>>>>>> parent of 228dbab (textbox cursor clamping)
 =======
 >>>>>>> parent of 228dbab (textbox cursor clamping)
         t.scroll = t.scroll - t.style.text.font:getWidth(txt)
@@ -308,7 +320,10 @@ local inlineTextbox = {
     end,
     keypressed = function(t, k)
 <<<<<<< HEAD
+<<<<<<< HEAD
         t.cursor = math.min(t.cursor, utf8.len(t.text))
+=======
+>>>>>>> parent of 228dbab (textbox cursor clamping)
 =======
 >>>>>>> parent of 228dbab (textbox cursor clamping)
         if k == "backspace" then
