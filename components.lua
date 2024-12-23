@@ -457,7 +457,14 @@ local scrollableListMt = {
             end)
             return t.pivot
         elseif k == "items" then
-            -- generate item list
+            if not t.first then return {} end
+            local i = {}
+            local e = t.first
+            repeat
+                table.insert(i, e)
+                e = e.next
+            until e == t.first
+            return i
         elseif k == "space" then return 0
         elseif k == "scroll" then return 0
         elseif k == "scrollSpeed" then return inlineScrollSpeed
@@ -480,7 +487,7 @@ local scrollableListMt = {
         else return scrollableList[k] ~= nil and scrollableList[k] or dummyMt.__index(t, k) end
     end,
     __newindex = function(t, k, v)
-        if k == "contentWidth" or k == "contentHeight" then return
+        if k == "contentWidth" or k == "contentHeight" or k == "items" then return
         else rawset(t, k, v) end
     end
 }
@@ -496,6 +503,9 @@ return {
         return setmetatable(t, inlineTextboxMt)
     end,
     scrollableList = function(t)
-        return scene.new(setmatatable(t, scrollableListMt))
+        local s = scene.new(setmatatable(t, scrollableListMt))
+        for i, e in t.items do s.add(e) end
+        s.items = nil
+        return s
     end
 }
