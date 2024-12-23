@@ -2,12 +2,11 @@
 UTILITY FUNCTIONS
 
 sqit.utils.merge(a, b)
-    merges all entries from table b into table a in-place
+    merges all entries from both tables, colliding keys from b are overlayed on top of a
     arguments:
-        a (table): the destination table
-        b (table): the source table
+        a, b (table): source tables
     returns:
-        a (table): the modified destination table
+        t (table): the destination table
 sqit.utils.spaceOut(elems, direction, space, pivot, mode, spaceAround)
     spaces out the elements in the specified order (assuming elements are positioned about their cetner)
     arguments:
@@ -31,10 +30,14 @@ sqit.utils.stretchOut(elems, direction, from, to, spaceAround) - stretch the ele
 
 return {
     merge = function(a, b)
-        for k, v in pairs(b) do
-            a[k] = v
+        local t = {}
+        for k, v in pairs(a) do
+            t[k] = v
         end
-        return a
+        for k, v in pairs(b) do
+            t[k] = v
+        end
+        return setmetatable(t, getmetatable(b) or getmetatable(a))
     end,
     spaceOut = function(elems, direction, space, pivot, mode, spaceAround)
         space = space or 0

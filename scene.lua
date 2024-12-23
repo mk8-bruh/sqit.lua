@@ -81,12 +81,11 @@ scene properties:
     scene.callbacks - a table containing all the scene's extra callbacks (the extra callbacks are called right before the elements' respective callbacks, they can be set by overriding the fields in the scene table itself or in this table)
 --]]
 
-
 local function emptyf() return end
 local function clamp(x, a, b) a, b = math.min(a, b), math.max(a, b) return math.max(a, math.min(b, x)) end
 local function inrect(x, y, l, t, w, h) return x == clamp(x, l, l + w) and y == clamp(y, t, t + h) end
 local function hasbbox(e) if type(e) ~= "table" then return false end for _,k in ipairs{"x","y","w","h"} do if type(e[k]) ~= "number" then return false end end return true end
-local function check(e, x, y) return type(x) == "number" and type(y) == "number" and ((type(e.check) == "function" and e:check(x, y)) or e.check == true or (e.check ~= false and type(e.check) ~= "function" and hasbbox(e) and inrect(x, y, e.x, e.y, e.w, e.h))) end
+local function check(e, x, y) return type(x) == "number" and type(y) == "number" and ((type(e.check) == "function" and e:check(x, y)) or (type(e.check) ~= "function" and hasbbox(e) and inrect(x, y, e.x, e.y, e.w, e.h))) end
 
 local function zsorted(elem, rev)
     local r = {}
@@ -107,9 +106,7 @@ local function zsorted(elem, rev)
 end
 
 local callbackNames, activeCallbackNames, blockingCallbackNames = {
-    "added", "removed", "elementactivated",
-
-    "resize", "update", "draw", "latedraw", "quit",
+    "resize", "update", "draw", "quit",
 
     "pressed", "moved", "released", "cancelled",
     "scrolled", "hovered", "unhovered",
@@ -140,9 +137,6 @@ local callbackNames, activeCallbackNames, blockingCallbackNames = {
     "gamepadaxis", "gamepadpressed", "gamepadreleased"
 }
 
-local sceneMt = {}
-local function is(s) return getmetatable(s) == sceneMt end
-
 local function new(o)
     local elem = {}
     local named = {}
@@ -151,8 +145,8 @@ local function new(o)
     local hovered = nil
     local active = nil
     local enabled = true
-
     local callbacks = {}
+    
     for _,n in ipairs(callbackNames) do
        callbacks[n] = emptyf
     end
@@ -168,44 +162,27 @@ local function new(o)
     function ui.add(e, n)
         if type(e) == "table" then
             elem[e] = true
-            if type(n) == "string" or type(n) == "number" then
+            if type(n) == "string" then
                 named[n] = e
             end
-            callbacks.added(ui, e)
         end
     end
 
     function ui.remove(e)
         if ui.contains(e) then
-            callbacks.removed(ui, e)
             elem[e] = nil
         elseif ui.hasNamed(e) then
-            callbacks.removed(ui, named[e])
             elem[named[e]] = nil
             named[e] = nil
         end
     end
 
     function ui.hasNamed(n)
-        return named[n] and ui.contains(named[n])
+        return named[n] ~= nil
     end
 
     function ui.getNamed(n)
-        return ui.hasNamed(n) and named[n] or nil
-    end
-
-    function ui.getName(e)
-        for n, o in pairs(named) do
-            if e == o then
-                return n
-            end
-        end
-    end
-
-    function ui.setName(e, n)
-        if ui.contains(e) then
-            named[n] = e
-        end
+        return named[n]
     end
 
     local function convertNames(...)
@@ -224,7 +201,6 @@ local function new(o)
             if type(e.activated) == "function" then
                 e:activated()
             end
-            callbacks.elementactivated(ui, e)
         end
     end
 
@@ -257,14 +233,6 @@ local function new(o)
         return presses[e]
     end
 
-    function ui.getPressedElement(k)
-        for e, _k in pairs(pressed) do
-            if k == _k then
-                return e
-            end
-        end
-    end
-
     function ui.getPressID(e)
         e = convertNames(e)
         return type(presses[e]) == "userdata" and presses[e]
@@ -286,16 +254,11 @@ local function new(o)
     end
 
     function ui.cancelPress(e)
-        if ui.getPressedElement(e) then return ui.cancelPress(ui.getPressedElement(e)) end
         e = convertNames(e)
-        local k = presses[e]
-        if k then
+        if presses[e] then
             presses[e] = nil
             if type(e.cancelled) == "function" then
                 e:cancelled()
-            end
-            if is(e) then
-                e.cancelPress(k)
             end
         end
     end
@@ -380,7 +343,7 @@ local function new(o)
                 presses[v] = nil
                 r = true
             end
-        end end
+        end end     
         return r
     end
 
@@ -445,7 +408,7 @@ local function new(o)
     end
 
     function ui.resize(w, h)
-        for _,v in ipairs(zsorted(elem, true)) do
+        for v in pairs(elem) do
             if type(v.resize) == "function" then
                 v:resize(w, h)
             end
@@ -514,7 +477,7 @@ local function new(o)
         e = convertNames(e)
         if ui.contains(e) then
             elem[e] = v and true or false
-            if not elem[e] then
+            if not enabled then
                 if type(e.disabled) == "function" then
                     e:disabled()
                 end
@@ -528,14 +491,14 @@ local function new(o)
             enabled = e and true or false
             if not enabled then
                 for v in pairs(elem) do
-                    if elem[v] and type(v.disabled) == "function" then
+                    if type(v.disabled) == "function" then
                         v:disabled()
                     end
                     ui.cancelPress(v)
                 end
             else
                 for v in pairs(elem) do
-                    if elem[e] and type(v.enabled) == "function" then
+                    if type(v.enabled) == "function" then
                         v:enabled()
                     end
                 end
@@ -566,8 +529,8 @@ local function new(o)
                 while args[1] == t do table.remove(args, 1) end
                 if n == "draw" then love.graphics.push("all") end
                 local r = callbacks[n](t, unpack(args))
-                if r ~= false then r = r and f(unpack(args)) end
-                if n == "draw" then love.graphics.pop() if r ~= false then r = r and callbacks.latedraw(t, unpack(args)) end end
+                if r ~= false then r = r or f(unpack(args)) end
+                if n == "draw" then love.graphics.pop() end
                 return r
             end
         end
@@ -595,13 +558,9 @@ local function new(o)
         __metatable = {}
     })
 
-    local mt = type(o) == "table" and type(getmetatable(o)) == "table" and getmetatable(o) or {}
-    local _i, _ni = mt.__index, mt.__newindex
-    local _get = (type( _i) == "function" and  _i) or (type(_i) == "table" and function(t, k) return _i[k] end) or function() end,
-    local _set = (type(_ni) == "function" and _ni) or rawset
     setmetatable(t, {
         __index = function(t, k)
-            return ui[k] or named[k] or _get(t, k)
+            return ui[k] or named[k]
         end,
         __newindex = function(t, k, v)
             if callbacks[k] and type(v) == "function" then
@@ -609,11 +568,11 @@ local function new(o)
             elseif callbacks[k] and v == nil then
                 callbacks[k] = emptyf
             elseif not ui[k] then
-                _set(t, k, v)
+                rawset(t, k, v)
             end
         end,
-        __metatable = sceneMt,
-        __tostring = function(t) "[SQIT scene]" end
+        __metatable = {},
+        __tostring = function(t) return ("[%s instance]"):format(_NAME) end
     })
 
     if type(o) == "table" then
@@ -626,6 +585,5 @@ local function new(o)
 end
 
 return {
-    is = is,
     new = new
 }
